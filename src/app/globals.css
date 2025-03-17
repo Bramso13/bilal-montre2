@@ -1,26 +1,309 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+.customCandyScrollBar::-webkit-scrollbar-track
+{
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+    background-color: #F5F5F5;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.customCandyScrollBar::-webkit-scrollbar
+{
+    width: 6px;
+    background-color: #C9C9C9;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.customCandyScrollBar::-webkit-scrollbar-thumb
+{
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    background-color: #8F8F8F;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Styles inspirés de Chronoswiss */
+.chronoswiss-header {
+  background-color: #121212;
+  color: white;
+}
+
+.chronoswiss-filter-button {
+  @apply rounded-full flex items-center justify-center text-xs font-medium transition-colors;
+  width: 40px;
+  height: 40px;
+}
+
+.chronoswiss-filter-button.active {
+  @apply bg-watchGold text-white;
+}
+
+.chronoswiss-filter-button.gold {
+  @apply bg-watchGold text-white;
+}
+
+.chronoswiss-filter-button.silver {
+  @apply bg-watchSilver text-black;
+}
+
+.chronoswiss-filter-button.blue {
+  @apply bg-watchBlue text-white;
+}
+
+.chronoswiss-filter-button.black {
+  @apply bg-watchBlack text-white;
+}
+
+.chronoswiss-filter-button.brown {
+  @apply bg-watchBrown text-white;
+}
+
+.chronoswiss-title {
+  @apply font-serif text-3xl md:text-4xl font-bold tracking-wider uppercase;
+}
+
+.chronoswiss-subtitle {
+  @apply font-serif text-2xl md:text-3xl font-bold tracking-wide uppercase;
+}
+
+.chronoswiss-product-card {
+  @apply bg-watchBlack text-white rounded-lg overflow-hidden transition-transform hover:scale-105;
+}
+
+.chronoswiss-limited-tag {
+  @apply bg-watchBlack text-white text-xs uppercase font-medium px-3 py-1 inline-block;
+}
+
+/* Chronoswiss-inspired styles */
+.chronoswiss-title {
+  @apply font-serif text-4xl font-bold md:text-6xl;
+  letter-spacing: -0.5px;
+}
+
+.chronoswiss-subtitle {
+  @apply font-serif text-3xl font-bold;
+  letter-spacing: -0.3px;
+}
+
+.chronoswiss-filter-button {
+  @apply w-10 h-10 rounded-full cursor-pointer border-2 transition-all duration-200;
+}
+
+.chronoswiss-filter-button.gold {
+  @apply bg-watchGold border-watchGold hover:opacity-80;
+}
+
+.chronoswiss-filter-button.silver {
+  @apply bg-watchSilver border-watchSilver hover:opacity-80;
+}
+
+.chronoswiss-filter-button.black {
+  @apply bg-watchBlack border-watchBlack hover:opacity-80;
+}
+
+.chronoswiss-filter-button.blue {
+  @apply bg-watchBlue border-watchBlue hover:opacity-80;
+}
+
+.chronoswiss-filter-button.brown {
+  @apply bg-watchBrown border-watchBrown hover:opacity-80;
+}
+
+.chronoswiss-filter-button.red {
+  @apply bg-watchRed border-watchRed hover:opacity-80;
+}
+
+.chronoswiss-product-card {
+  @apply bg-black border border-gray-800 overflow-hidden transition-all duration-300;
+}
+
+.chronoswiss-product-card:hover {
+  @apply border-watchGold;
+  transform: translateY(-5px);
+}
+
+.chronoswiss-limited-tag {
+  @apply inline-block py-1 px-3 bg-watchGold text-black text-xs font-medium;
+}
+
+@layer base {
+	:root {
+		--background: 0 0% 100%;
+		--foreground: 240 10% 3.9%;
+		--card: 0 0% 100%;
+		--card-foreground: 240 10% 3.9%;
+		--popover: 0 0% 100%;
+		--popover-foreground: 240 10% 3.9%;
+		--primary: 346.8 77.2% 49.8%;
+		--primary-foreground: 355.7 100% 97.3%;
+		--secondary: 240 4.8% 95.9%;
+		--secondary-foreground: 240 5.9% 10%;
+		--muted: 240 4.8% 95.9%;
+		--muted-foreground: 240 3.8% 46.1%;
+		--accent: 240 4.8% 95.9%;
+		--accent-foreground: 240 5.9% 10%;
+		--destructive: 0 84.2% 60.2%;
+		--destructive-foreground: 0 0% 98%;
+		--border: 240 5.9% 90%;
+		--input: 240 5.9% 90%;
+		--ring: 346.8 77.2% 49.8%;
+		--radius: 0.5rem;
+		--chart-1: 12 76% 61%;
+		--chart-2: 173 58% 39%;
+		--chart-3: 197 37% 24%;
+		--chart-4: 43 74% 66%;
+		--chart-5: 27 87% 67%;
+		--sidebar-background: 0 0% 98%;
+		--sidebar-foreground: 240 5.3% 26.1%;
+		--sidebar-primary: 240 5.9% 10%;
+		--sidebar-primary-foreground: 0 0% 98%;
+		--sidebar-accent: 240 4.8% 95.9%;
+		--sidebar-accent-foreground: 240 5.9% 10%;
+		--sidebar-border: 220 13% 91%;
+		--sidebar-ring: 217.2 91.2% 59.8%;
+	}
+
+	.dark {
+		--background: 20 14.3% 4.1%;
+		--foreground: 0 0% 95%;
+		--card: 24 9.8% 10%;
+		--card-foreground: 0 0% 95%;
+		--popover: 0 0% 9%;
+		--popover-foreground: 0 0% 95%;
+		--primary: 346.8 77.2% 49.8%;
+		--primary-foreground: 355.7 100% 97.3%;
+		--secondary: 240 3.7% 15.9%;
+		--secondary-foreground: 0 0% 98%;
+		--muted: 0 0% 15%;
+		--muted-foreground: 240 5% 64.9%;
+		--accent: 12 6.5% 15.1%;
+		--accent-foreground: 0 0% 98%;
+		--destructive: 0 62.8% 30.6%;
+		--destructive-foreground: 0 85.7% 97.3%;
+		--border: 240 3.7% 15.9%;
+		--input: 240 3.7% 15.9%;
+		--ring: 346.8 77.2% 49.8%;
+		--chart-1: 220 70% 50%;
+		--chart-2: 160 60% 45%;
+		--chart-3: 30 80% 55%;
+		--chart-4: 280 65% 60%;
+		--chart-5: 340 75% 55%;
+		--sidebar-background: 240 5.9% 10%;
+		--sidebar-foreground: 240 4.8% 95.9%;
+		--sidebar-primary: 224.3 76.3% 48%;
+		--sidebar-primary-foreground: 0 0% 100%;
+		--sidebar-accent: 240 3.7% 15.9%;
+		--sidebar-accent-foreground: 240 4.8% 95.9%;
+		--sidebar-border: 240 3.7% 15.9%;
+		--sidebar-ring: 217.2 91.2% 59.8%;
+	}
+}
+
+@layer base {
+	* {
+		@apply border-border;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
+}
+
+.selectedElementEditor {
+	border: 2px solid #f00;
+}
+.selectedElementEditor::after {
+	content: attr(elementName);
+	position: absolute;
+	right: 0;
+	width: fit-content;
+	height: fit-content;
+	background-color: #f00;
+	padding: 2px 3px;
+}
+.iphoneX {
+	transform-origin: 0 0;
+	transform: scale(calc((458 / 227) * 2));
+}
+
+.iphone-x {
+	position: relative;
+
+	border-radius: 40px;
+	box-shadow:
+		0px 0px 0px 11px #1f1f1f,
+		0px 0px 0px 13px #191919,
+		0px 0px 0px 20px #111;
+}
+.iphone-x i,
+.iphone-x b,
+.iphone-x s,
+.iphone-x span {
+	position: absolute;
+	display: block;
+	color: transparent;
+}
+.iphone-x i {
+	top: 0px;
+	left: 50%;
+	transform: translate(-50%, 6px);
+	height: 8px;
+	width: 15%;
+	background-color: #101010;
+	border-radius: 8px;
+	box-shadow: inset 0px -3px 3px 0px rgba(256, 256, 256, 0.2);
+}
+.iphone-x b {
+	left: 10%;
+	top: 0px;
+	transform: translate(180px, 4px);
+	width: 12px;
+	height: 12px;
+	background-color: #101010;
+	border-radius: 12px;
+	box-shadow: inset 0px -3px 2px 0px rgba(256, 256, 256, 0.2);
+}
+.iphone-x b:after {
+	content: "";
+	position: absolute;
+	background-color: #2d4d76;
+	width: 6px;
+	height: 6px;
+	top: 2px;
+	left: 2px;
+	top: 3px;
+	left: 3px;
+	display: block;
+	border-radius: 4px;
+	box-shadow: inset 0px -2px 2px rgba(0, 0, 0, 0.5);
+}
+.iphone-x s {
+	top: 50px;
+	color: #fff;
+	text-align: center;
+	text-decoration: none;
+	width: 100%;
+	font-size: 70px;
+	font-weight: 100;
+	padding-top: 60px;
+}
+.iphone-x span {
+	bottom: 50px;
+	width: 40px;
+	height: 40px;
+	background-color: rgba(0, 0, 0, 0.3);
+	border-radius: 50%;
+	left: 30px;
+}
+.iphone-x span + span {
+	left: auto;
+	right: 30px;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
 }

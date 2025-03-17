@@ -1,0 +1,142 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Modèle pour les utilisateurs (clients et administrateurs)
+model User {
+  id            String        @id @default(cuid())
+  name          String
+  email         String        @unique
+  password      String
+  role          Role          @default(USER)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  orders        Order[]
+  customWatches CustomWatch[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String
+  imageUrl    String?
+  watches     Watch[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Modèle pour les montres prêtes à l'achat
+model Watch {
+  id          String      @id @default(cuid())
+  name        String
+  description String
+  price       Float
+  stock       Int
+  imageUrl    String
+  brand       String      @default("Seiko")
+  reference   String      @unique
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  orderItems  OrderItem[]
+  category    Category    @relation(fields: [categoryId], references: [id])
+  categoryId  String
+}
+
+// Modèle pour les composants de montres
+model Component {
+  id                    String                 @id @default(cuid())
+  name                  String
+  type                  ComponentType
+  description           String
+  price                 Float
+  stock                 Int
+  imageUrl              String
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  customWatchComponents CustomWatchComponent[]
+}
+
+enum ComponentType {
+  CASE
+  DIAL
+  HANDS
+  STRAP
+  MOVEMENT
+  CRYSTAL
+  CROWN
+  OTHER
+}
+
+// Modèle pour les montres personnalisées
+model CustomWatch {
+  id         String                 @id @default(cuid())
+  name       String
+  totalPrice Float
+  userId     String
+  user       User                   @relation(fields: [userId], references: [id])
+  createdAt  DateTime               @default(now())
+  updatedAt  DateTime               @updatedAt
+  components CustomWatchComponent[]
+  orderItems OrderItem[]
+}
+
+// Relation entre montres personnalisées et composants
+model CustomWatchComponent {
+  id            String      @id @default(cuid())
+  customWatchId String
+  componentId   String
+  customWatch   CustomWatch @relation(fields: [customWatchId], references: [id], onDelete: Cascade)
+  component     Component   @relation(fields: [componentId], references: [id])
+
+  @@unique([customWatchId, componentId])
+}
+
+// Modèle pour les commandes
+model Order {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  status      OrderStatus @default(PENDING)
+  totalAmount Float
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  items       OrderItem[]
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+// Modèle pour les articles de commande
+model OrderItem {
+  id            String       @id @default(cuid())
+  orderId       String
+  order         Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  quantity      Int
+  price         Float
+  watchId       String?
+  watch         Watch?       @relation(fields: [watchId], references: [id])
+  customWatchId String?
+  customWatch   CustomWatch? @relation(fields: [customWatchId], references: [id])
+}

@@ -1,101 +1,279 @@
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
+    <div className="bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen">
+      {/* Hero section */}
+      <section className="relative h-[600px] w-full">
         <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
+          src="/images/hero-banner.jpg"
+          alt="Montre Seiko élégante"
+          fill
+          className="object-cover"
           priority
         />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="container relative h-full">
+          <div className="flex h-full flex-col items-center justify-center text-center text-white">
+            <h1 className="chronoswiss-title">
+              L'Art de l'Horlogerie Japonaise
+            </h1>
+            <p className="mt-4 max-w-2xl text-lg text-gray-200">
+              Découvrez notre collection exclusive de montres Seiko et créez
+              votre propre montre personnalisée avec nos composants de haute
+              qualité.
+            </p>
+            <div className="mt-8 flex gap-4">
+              <Button asChild size="lg" className="bg-watchGold hover:bg-watchGold/90 text-white border-none">
+                <Link href="/montres">Découvrir la Collection</Link>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="border-white text-black hover:bg-white/10">
+                <Link href="/personnaliser">Personnaliser</Link>
+              </Button>
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </section>
+
+      {/* Filtres de fonctions
+      <section className="py-12 bg-watchBlack text-white flex">
+        <div className="container">
+          <div className="flex flex-row items-center justify-between">
+            <div className="mb-6 text-center">
+              <h2 className="text-sm uppercase tracking-wider mb-2">Fonctions</h2>
+              <div className="flex items-center gap-4">
+                <div className="chronoswiss-filter-button gold">
+                  <span className="sr-only">Régulateur</span>
+                </div>
+                <div className="chronoswiss-filter-button silver">
+                  <span className="sr-only">Chronographe</span>
+                </div>
+                <div className="chronoswiss-filter-button black">
+                  <span className="sr-only">Automatique</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mb-6 text-center">
+              <h2 className="text-sm uppercase tracking-wider mb-2">Tailles</h2>
+              <div className="flex items-center gap-2">
+                <button className="w-8 h-8 rounded-full border border-gray-600 flex items-center justify-center text-xs hover:border-watchGold hover:text-watchGold">34</button>
+                <button className="w-8 h-8 rounded-full border border-gray-600 flex items-center justify-center text-xs hover:border-watchGold hover:text-watchGold">37</button>
+                <button className="w-8 h-8 rounded-full bg-watchGold text-white flex items-center justify-center text-xs">40</button>
+                <button className="w-8 h-8 rounded-full border border-gray-600 flex items-center justify-center text-xs hover:border-watchGold hover:text-watchGold">41</button>
+                <button className="w-8 h-8 rounded-full border border-gray-600 flex items-center justify-center text-xs hover:border-watchGold hover:text-watchGold">42</button>
+                <button className="w-8 h-8 rounded-full border border-gray-600 flex items-center justify-center text-xs hover:border-watchGold hover:text-watchGold">43</button>
+                <button className="w-8 h-8 rounded-full border border-gray-600 flex items-center justify-center text-xs hover:border-watchGold hover:text-watchGold">44+</button>
+                <button className="w-8 h-8 rounded-full border border-gray-600 flex items-center justify-center text-xs hover:border-watchGold hover:text-watchGold">45</button>
+              </div>
+            </div>
+            
+            <div className="text-center">
+              <h2 className="text-sm uppercase tracking-wider mb-2">Matériaux</h2>
+              <div className="flex items-center gap-4">
+                <div className="chronoswiss-filter-button gold">
+                  <span className="sr-only">Or</span>
+                </div>
+                <div className="chronoswiss-filter-button silver">
+                  <span className="sr-only">Argent</span>
+                </div>
+                <div className="chronoswiss-filter-button blue">
+                  <span className="sr-only">Bleu</span>
+                </div>
+                <div className="chronoswiss-filter-button black">
+                  <span className="sr-only">Noir</span>
+                </div>
+                <div className="chronoswiss-filter-button brown">
+                  <span className="sr-only">Marron</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section> */}
+
+      {/* Space Timer Collection */}
+      <section className="py-16 bg-watchBlack text-white">
+        <div className="container">
+          <div className="flex justify-between items-center mb-10">
+            <h2 className="chronoswiss-title">Space Timer</h2>
+            <div className="flex gap-1">
+              {[...Array(10)].map((_, i) => (
+                <div 
+                  key={i} 
+                  className={`w-2 h-2 rounded-full ${i < 3 ? 'bg-watchGold' : 'bg-gray-600'}`}
+                />
+              ))}
+            </div>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Montre 1 */}
+            <div className="chronoswiss-product-card">
+              <div className="p-4">
+                <div className="chronoswiss-limited-tag">Limité à 50 pièces</div>
+              </div>
+              <div className="relative aspect-square">
+                <Image 
+                  src="/images/classic-watches.jpg" 
+                  alt="Space Timer Black Hole" 
+                  fill 
+                  className="object-cover"
+                />
+              </div>
+              <div className="p-6">
+                <div className="text-sm text-gray-400">CH-9345M-2-CRBK</div>
+                <h3 className="text-lg font-medium mt-1">SPACE TIMER BLACK HOLE</h3>
+              </div>
+            </div>
+            
+            {/* Montre 2 */}
+            <div className="chronoswiss-product-card">
+              <div className="p-4">
+                <div className="chronoswiss-limited-tag">Limité à 50 pièces</div>
+              </div>
+              <div className="relative aspect-square">
+                <Image 
+                  src="/images/luxury-watches.jpg" 
+                  alt="Space Timer Jupiter Gold" 
+                  fill 
+                  className="object-cover"
+                />
+              </div>
+              <div className="p-6">
+                <div className="text-sm text-gray-400">CH-9341-2-CUBK</div>
+                <h3 className="text-lg font-medium mt-1">SPACE TIMER JUPITER GOLD</h3>
+              </div>
+            </div>
+            
+            {/* Montre 3 */}
+            <div className="chronoswiss-product-card">
+              <div className="p-4">
+                <div className="chronoswiss-limited-tag">Limité à 50 pièces</div>
+              </div>
+              <div className="relative aspect-square">
+                <Image 
+                  src="/images/sport-watches.jpg" 
+                  alt="Space Timer Jupiter" 
+                  fill 
+                  className="object-cover"
+                />
+              </div>
+              <div className="p-6">
+                <div className="text-sm text-gray-400">CH-9343-2-CUBK</div>
+                <h3 className="text-lg font-medium mt-1">SPACE TIMER JUPITER</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Tourbillon Collection */}
+      <section className="py-16 bg-watchBlack text-white">
+        <div className="container">
+          <div className="flex justify-between items-center mb-10">
+            <h2 className="chronoswiss-title">Tourbillon</h2>
+            <div className="flex gap-1">
+              {[...Array(10)].map((_, i) => (
+                <div 
+                  key={i} 
+                  className={`w-2 h-2 rounded-full ${i < 3 ? 'bg-watchGold' : 'bg-gray-600'}`}
+                />
+              ))}
+            </div>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Montre 1 */}
+            <div className="chronoswiss-product-card">
+              <div className="p-4">
+                <div className="chronoswiss-limited-tag">Limité à 15 pièces</div>
+              </div>
+              <div className="relative aspect-square">
+                <Image 
+                  src="/images/luxury-watches.jpg" 
+                  alt="Tourbillon Red" 
+                  fill 
+                  className="object-cover"
+                />
+              </div>
+              <div className="p-6">
+                <div className="text-sm text-gray-400">CH-3721R-SI</div>
+                <h3 className="text-lg font-medium mt-1">TOURBILLON RED</h3>
+              </div>
+            </div>
+            
+            {/* Montre 2 */}
+            <div className="chronoswiss-product-card">
+              <div className="p-4">
+                <div className="chronoswiss-limited-tag">Limité à 15 pièces</div>
+              </div>
+              <div className="relative aspect-square">
+                <Image 
+                  src="/images/classic-watches.jpg" 
+                  alt="Tourbillon Blue" 
+                  fill 
+                  className="object-cover"
+                />
+              </div>
+              <div className="p-6">
+                <div className="text-sm text-gray-400">CH-3721B-SI</div>
+                <h3 className="text-lg font-medium mt-1">TOURBILLON BLUE</h3>
+              </div>
+            </div>
+            
+            {/* Montre 3 */}
+            <div className="chronoswiss-product-card">
+              <div className="p-4">
+                <div className="chronoswiss-limited-tag">Limité à 15 pièces</div>
+              </div>
+              <div className="relative aspect-square">
+                <Image 
+                  src="/images/sport-watches.jpg" 
+                  alt="Tourbillon Black" 
+                  fill 
+                  className="object-cover"
+                />
+              </div>
+              <div className="p-6">
+                <div className="text-sm text-gray-400">CH-3721K-SI</div>
+                <h3 className="text-lg font-medium mt-1">TOURBILLON BLACK</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section personnalisation */}
+      <section className="py-16 bg-gray-100">
+        <div className="container">
+          <div className="grid items-center gap-12 md:grid-cols-2">
+            <div>
+              <h2 className="chronoswiss-subtitle mb-4">
+                Personnalisez Votre Montre
+              </h2>
+              <p className="text-gray-700">
+                Créez une montre unique qui vous ressemble. Choisissez parmi
+                notre large sélection de composants et laissez libre cours à
+                votre créativité.
+              </p>
+              <Button asChild className="mt-6 bg-watchBlack hover:bg-watchBlack/90 text-white" size="lg">
+                <Link href="/personnaliser">Commencer la Personnalisation</Link>
+              </Button>
+            </div>
+            <div className="relative h-[400px]">
+              <Image
+                src="/images/custom-watch.jpg"
+                alt="Personnalisation de montre"
+                fill
+                className="rounded-lg object-cover"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
