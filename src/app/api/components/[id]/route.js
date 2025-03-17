@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { z } from "zod";
 
 // Schéma de validation pour la mise à jour d'un composant
@@ -11,7 +11,7 @@ const updateComponentSchema = z.object({
     .min(2, "Le nom doit contenir au moins 2 caractères")
     .optional(),
   type: z
-    .enum(["DIAL", "HANDS", "CASE", "BEZEL", "BRACELET", "MOVEMENT", "OTHER"], {
+    .enum(["CASE", "DIAL", "HANDS", "STRAP", "MOVEMENT", "CRYSTAL", "CROWN", "OTHER"], {
       errorMap: () => ({ message: "Type de composant invalide" }),
     })
     .optional(),
@@ -29,10 +29,7 @@ const updateComponentSchema = z.object({
 });
 
 // GET - Récupérer un composant spécifique
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req, { params }) {
   try {
     const { id } = params;
 
@@ -58,22 +55,12 @@ export async function GET(
 }
 
 // PATCH - Mettre à jour un composant (admin seulement)
-export async function PATCH(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req, { params }) {
   try {
+    // Vérifier l'authentification et les droits d'administrateur
     const session = await getServerSession(authOptions);
-
-    // Vérifier si l'utilisateur est connecté et est un admin
-    if (!session || session.user.role !== "ADMIN") {
-      return NextResponse.json(
-        {
-          error:
-            "Non autorisé. Seuls les administrateurs peuvent modifier des composants.",
-        },
-        { status: 403 }
-      );
+    if (!session?.user || session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
     const { id } = params;
@@ -123,22 +110,12 @@ export async function PATCH(
 }
 
 // DELETE - Supprimer un composant (admin seulement)
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req, { params }) {
   try {
+    // Vérifier l'authentification et les droits d'administrateur
     const session = await getServerSession(authOptions);
-
-    // Vérifier si l'utilisateur est connecté et est un admin
-    if (!session || session.user.role !== "ADMIN") {
-      return NextResponse.json(
-        {
-          error:
-            "Non autorisé. Seuls les administrateurs peuvent supprimer des composants.",
-        },
-        { status: 403 }
-      );
+    if (!session?.user || session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
     const { id } = params;

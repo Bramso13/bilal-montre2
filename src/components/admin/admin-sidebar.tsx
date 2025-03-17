@@ -1,8 +1,7 @@
 "use client";
 
 import { useNavigation } from "@/lib/context/NavigationContext";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+
 import {
   Sidebar,
   SidebarHeader,
@@ -12,17 +11,14 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton,
-  SidebarFooter,
-} from "../ui/sidebar";
-import { ChevronRight } from "lucide-react";
 
-interface SidebarProps {
-  activeItem: string;
-  onNavigate: (item: string) => void;
-}
+
+
+
+} from "../ui/sidebar";
+
+
+
 
 export function AdminSidebar() {
   const {

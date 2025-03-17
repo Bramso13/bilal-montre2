@@ -5,8 +5,8 @@ import { db } from "@/lib/db";
 
 // GET - Récupérer une catégorie spécifique
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
+  request,
+  { params }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -58,8 +58,8 @@ export async function GET(
 
 // PUT - Mettre à jour une catégorie
 export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
+  request ,
+  { params }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -129,8 +129,8 @@ export async function PUT(
 
 // DELETE - Supprimer une catégorie
 export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
+  request,
+  { params }
 ) {
   try {
     const session = await getServerSession(authOptions);

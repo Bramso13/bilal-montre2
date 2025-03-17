@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
+
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, Menu, Check, ArrowRight, ShoppingCart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSwipeable } from "react-swipeable";
-import { AddToCartButton } from "@/components/cart/add-to-cart-button";
+
 import { useCartStore } from "@/lib/store/cart-store";
 
 export interface Component {

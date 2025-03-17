@@ -5,7 +5,6 @@ import { Toaster } from "sonner";
 
 import { cn } from "@/lib/utils";
 import { SiteHeader } from "@/components/layout/site-header";
-import { SessionProvider } from "next-auth/react";
 import Providers from "@/providers/provider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });

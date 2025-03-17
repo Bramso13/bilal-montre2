@@ -2,9 +2,18 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { z } from "zod";
+
+// Schéma de validation pour la création d'une catégorie
+const categorySchema = z.object({
+  name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
+  slug: z.string().min(2, "Le slug doit contenir au moins 2 caractères"),
+  description: z.string().min(10, "La description doit contenir au moins 10 caractères"),
+  imageUrl: z.string().url("L'URL de l'image est invalide").optional(),
+});
 
 // GET - Récupérer toutes les catégories avec pagination et recherche
-export async function GET(request: Request) {
+export async function GET(request) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -49,37 +58,26 @@ export async function GET(request: Request) {
       where: whereClause,
     });
 
-    // Formater les données pour la réponse
-    const formattedCategories = categories.map((category) => ({
-      id: category.id,
-      name: category.name,
-      slug: category.slug,
-      description: category.description,
-      watchesCount: category._count.watches,
-      createdAt: category.createdAt,
-      updatedAt: category.updatedAt,
-    }));
-
     return NextResponse.json({
-      categories: formattedCategories,
+      categories,
       pagination: {
         total: totalCategories,
-        page,
+        pages: Math.ceil(totalCategories / limit),
+        current: page,
         limit,
-        totalPages: Math.ceil(totalCategories / limit),
       },
     });
   } catch (error) {
     console.error("Erreur lors de la récupération des catégories:", error);
     return NextResponse.json(
-      { error: "Erreur lors de la récupération des catégories" },
+      { error: "Une erreur est survenue lors de la récupération des catégories" },
       { status: 500 }
     );
   }
 }
 
 // POST - Créer une nouvelle catégorie
-export async function POST(request: Request) {
+export async function POST(request) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -88,44 +86,45 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
-    // Récupérer les données de la requête
     const body = await request.json();
-    const { name, slug, description } = body;
 
-    // Validation des données
-    if (!name || !slug) {
+    // Valider les données d'entrée
+    const result = categorySchema.safeParse(body);
+    if (!result.success) {
       return NextResponse.json(
-        { error: "Le nom et le slug sont obligatoires" },
+        {
+          error: "Données de catégorie invalides",
+          details: result.error.format(),
+        },
         { status: 400 }
       );
     }
 
     // Vérifier si le slug est déjà utilisé
     const existingCategory = await db.category.findUnique({
-      where: { slug },
+      where: { slug: result.data.slug },
     });
 
     if (existingCategory) {
       return NextResponse.json(
-        { error: "Ce slug est déjà utilisé" },
+        { error: "Ce slug est déjà utilisé par une autre catégorie" },
         { status: 400 }
       );
     }
 
     // Créer la catégorie
     const category = await db.category.create({
-      data: {
-        name,
-        slug,
-        description: description || "",
-      },
+      data: result.data,
     });
 
-    return NextResponse.json(category);
+    return NextResponse.json({
+      message: "Catégorie créée avec succès",
+      category,
+    });
   } catch (error) {
     console.error("Erreur lors de la création de la catégorie:", error);
     return NextResponse.json(
-      { error: "Erreur lors de la création de la catégorie" },
+      { error: "Une erreur est survenue lors de la création de la catégorie" },
       { status: 500 }
     );
   }

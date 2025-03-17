@@ -8,27 +8,19 @@ import { useCartStore } from "@/lib/store/cart-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  AlertCircle,
-  CreditCard,
-  Truck,
-  ArrowLeft,
-  CheckCircle,
-} from "lucide-react";
 import { useSession } from "next-auth/react";
+import { AlertCircle, Truck, ArrowLeft, CheckCircle } from "lucide-react";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { data: session } = useSession();
-  const { items, totalItems, totalPrice, clearCart } = useCartStore();
+  const { items, totalPrice, clearCart } = useCartStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [shippingMethod, setShippingMethod] = useState("standard");
-  const [paymentMethod, setPaymentMethod] = useState("card");
 
   const shippingCost = shippingMethod === "express" ? 15 : 5;
   const totalWithShipping = totalPrice + shippingCost;

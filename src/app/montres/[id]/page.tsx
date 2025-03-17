@@ -19,12 +19,8 @@ interface Watch {
   reference: string;
 }
 
-export default function WatchDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const { id } = params;
+export default function WatchDetailPage() {
+  const id= ""
   const router = useRouter();
   const [watch, setWatch] = useState<Watch | null>(null);
   const [loading, setLoading] = useState(true);

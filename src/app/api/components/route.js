@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route";
+
 import { z } from "zod";
+import { authOptions } from "@/lib/auth";
 
 // Schéma de validation pour la création/mise à jour d'un composant
 const componentSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
-  type: z.string(),
+  type: z.enum(["CASE", "DIAL", "HANDS", "STRAP", "MOVEMENT", "CRYSTAL", "CROWN", "OTHER"]),
   description: z
     .string()
     .min(10, "La description doit contenir au moins 10 caractères"),
@@ -17,16 +18,16 @@ const componentSchema = z.object({
 });
 
 // GET - Récupérer tous les composants ou filtrer par type
-export async function GET(req: Request) {
+export async function GET(req) {
   try {
     const url = new URL(req.url);
     const type = url.searchParams.get("type");
     const limit = url.searchParams.get("limit")
-      ? parseInt(url.searchParams.get("limit")!)
+      ? parseInt(url.searchParams.get("limit"))
       : undefined;
 
     const components = await prisma.component.findMany({
-      where: type ? { type: type as any } : undefined,
+      where: type ? { type: type } : undefined,
       take: limit,
       orderBy: {
         createdAt: "desc",
@@ -46,7 +47,7 @@ export async function GET(req: Request) {
 }
 
 // POST - Créer un nouveau composant (admin seulement)
-export async function POST(req: Request) {
+export async function POST(req) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -79,7 +80,7 @@ export async function POST(req: Request) {
     const component = await prisma.component.create({
       data: {
         ...result.data,
-        type: result.data.type as any,
+        type: result.data.type,
       },
     });
 

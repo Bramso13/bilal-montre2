@@ -4,7 +4,6 @@ import { AdminSidebar } from "@/components/admin/admin-sidebar";
 
 import {
   NavigationProvider,
-  useNavigation,
 } from "@/lib/context/NavigationContext";
 import {
   SidebarInset,
@@ -36,22 +35,4 @@ export default function AdminPage() {
       </div>
     </NavigationProvider>
   );
-}
-
-// Fonction pour obtenir le titre de la page
-function getPageTitle(section: string): string {
-  switch (section) {
-    case "dashboard":
-      return "Tableau de bord";
-    case "watches":
-      return "Gestion des montres";
-    case "components":
-      return "Gestion des composants";
-    case "orders":
-      return "Gestion des commandes";
-    case "users":
-      return "Gestion des utilisateurs";
-    default:
-      return "Administration";
-  }
 }

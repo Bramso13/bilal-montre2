@@ -19,7 +19,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function ConnexionPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -28,13 +28,7 @@ export default function ConnexionPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    // Récupérer le message de succès des paramètres d'URL
-    const successMessage = searchParams.get("success");
-    if (successMessage) {
-      setSuccess(successMessage);
-    }
-  }, [searchParams]);
+  
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -43,27 +37,25 @@ export default function ConnexionPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setError("");
     setLoading(true);
 
     try {
       const result = await signIn("credentials", {
+        redirect: false,
         email: formData.email,
         password: formData.password,
-        redirect: false,
       });
 
-      if (result?.error) {
-        setError("Email ou mot de passe incorrect");
+      if (!result?.ok) {
+        setError("Identifiants incorrects. Veuillez réessayer.");
+        setLoading(false);
         return;
       }
 
-      // Rediriger vers la page d'accueil après une connexion réussie
-      router.push("/");
-      router.refresh();
-    } catch (err) {
-      setError("Une erreur est survenue lors de la connexion");
-    } finally {
+      router.push("/profile");
+    } catch {
+      setError("Une erreur est survenue. Veuillez réessayer.");
       setLoading(false);
     }
   };

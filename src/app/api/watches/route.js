@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { z } from "zod";
 
 // Schéma de validation pour la création/mise à jour d'une montre
@@ -20,11 +20,11 @@ const watchSchema = z.object({
 });
 
 // GET - Récupérer toutes les montres
-export async function GET(req: Request) {
+export async function GET(req) {
   try {
     const url = new URL(req.url);
     const limit = url.searchParams.get("limit")
-      ? parseInt(url.searchParams.get("limit")!)
+      ? parseInt(url.searchParams.get("limit"))
       : undefined;
 
     const watches = await prisma.watch.findMany({
@@ -50,7 +50,7 @@ export async function GET(req: Request) {
 }
 
 // POST - Créer une nouvelle montre (admin seulement)
-export async function POST(req: Request) {
+export async function POST(req) {
   try {
     const session = await getServerSession(authOptions);
 

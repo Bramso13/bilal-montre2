@@ -1,8 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCartStore, CartItem } from "@/lib/store/cart-store";
 import { Button } from "@/components/ui/button";
@@ -17,24 +14,19 @@ import {
   AlertCircle,
   ArrowRight,
 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function CartPage() {
   const router = useRouter();
   const {
-    items,
+    items: cartItems,
     totalItems,
     totalPrice,
     removeItem,
     updateQuantity,
     clearCart,
   } = useCartStore();
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("fr-FR", {
-      style: "currency",
-      currency: "EUR",
-    }).format(price);
-  };
 
   const handleQuantityChange = (item: CartItem, newQuantity: number) => {
     updateQuantity(item.id, item.type, newQuantity);
@@ -44,7 +36,14 @@ export default function CartPage() {
     router.push("/checkout");
   };
 
-  if (items.length === 0) {
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("fr-FR", {
+      style: "currency",
+      currency: "EUR",
+    }).format(price);
+  };
+
+  if (cartItems.length === 0) {
     return (
       <div className="container mx-auto py-16 px-4">
         <h1 className="text-3xl font-bold mb-8">Votre panier</h1>
@@ -86,7 +85,7 @@ export default function CartPage() {
               </div>
 
               <div className="space-y-6">
-                {items.map((item) => (
+                {cartItems.map((item) => (
                   <div
                     key={`${item.type}-${item.id}`}
                     className="flex gap-6 pb-6 border-b"
@@ -286,14 +285,12 @@ export default function CartPage() {
               <h2 className="text-xl font-semibold mb-4">Récapitulatif</h2>
 
               <div className="space-y-3 mb-6">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Sous-total</span>
-                  <span>{formatPrice(totalPrice)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Livraison</span>
-                  <span>Calculée à l'étape suivante</span>
-                </div>
+                {cartItems.map((item, index) => (
+                  <div key={index} className="flex justify-between">
+                    <span className="text-muted-foreground">{item.name}</span>
+                    <span>{formatPrice(item.price * item.quantity)}</span>
+                  </div>
+                ))}
               </div>
 
               <Separator className="my-4" />

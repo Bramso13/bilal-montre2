@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { z } from "zod";
 
 // Schéma de validation pour la mise à jour d'une montre
@@ -29,15 +29,15 @@ const updateWatchSchema = z.object({
 });
 
 // GET - Récupérer une montre spécifique
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req, { params }) {
   try {
     const { id } = params;
 
     const watch = await prisma.watch.findUnique({
       where: { id },
+      include: {
+        category: true,
+      },
     });
 
     if (!watch) {
@@ -58,10 +58,7 @@ export async function GET(
 }
 
 // PATCH - Mettre à jour une montre (admin seulement)
-export async function PATCH(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req, { params }) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -103,18 +100,15 @@ export async function PATCH(
       );
     }
 
-    // Si la référence est modifiée, vérifier qu'elle n'existe pas déjà
-    if (
-      result.data.reference &&
-      result.data.reference !== existingWatch.reference
-    ) {
-      const watchWithSameReference = await prisma.watch.findUnique({
+    // Vérifier si la référence est unique
+    if (result.data.reference && result.data.reference !== existingWatch.reference) {
+      const watchWithRef = await prisma.watch.findUnique({
         where: { reference: result.data.reference },
       });
 
-      if (watchWithSameReference) {
+      if (watchWithRef) {
         return NextResponse.json(
-          { error: "Cette référence de montre existe déjà" },
+          { error: "Cette référence est déjà utilisée par une autre montre" },
           { status: 400 }
         );
       }
@@ -140,10 +134,7 @@ export async function PATCH(
 }
 
 // DELETE - Supprimer une montre (admin seulement)
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req, { params }) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -163,6 +154,9 @@ export async function DELETE(
     // Vérifier si la montre existe
     const existingWatch = await prisma.watch.findUnique({
       where: { id },
+      include: {
+        orderItems: true,
+      },
     });
 
     if (!existingWatch) {
@@ -172,12 +166,25 @@ export async function DELETE(
       );
     }
 
+    // Vérifier si la montre est dans des commandes
+    if (existingWatch.orderItems.length > 0) {
+      return NextResponse.json(
+        {
+          error:
+            "Impossible de supprimer cette montre car elle est présente dans des commandes",
+        },
+        { status: 400 }
+      );
+    }
+
     // Supprimer la montre
     await prisma.watch.delete({
       where: { id },
     });
 
-    return NextResponse.json({ message: "Montre supprimée avec succès" });
+    return NextResponse.json({
+      message: "Montre supprimée avec succès",
+    });
   } catch (error) {
     console.error("Erreur lors de la suppression de la montre:", error);
     return NextResponse.json(
