@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/table";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+
 interface Product {
   id: string;
   name: string;
@@ -45,32 +46,31 @@ interface Component {
   imageUrl: string;
 }
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
 interface OrderItem {
   id: string;
-  price: number;
+  orderId: string;
   quantity: number;
-  product: Product;
+  price: number;
+  watchId: string | null;
+  customWatchId: string | null;
+  watch: any | null;
 }
 
 interface Order {
   id: string;
-  clientName: string;
-  date: string;
-  amount: number;
+  userId: string;
   status: string;
-  itemsCount: number;
+  totalAmount: number;
+  createdAt: string;
+  updatedAt: string;
+  user: User;
   items: OrderItem[];
-  shippingDetails?: {
-    address: string;
-    city: string;
-    postalCode: string;
-    country: string;
-    phone?: string;
-    email?: string;
-  };
-  shippingMethod?: string;
-  shippingCost?: number;
-  notes?: string;
 }
 
 interface OrdersManagerProps {
@@ -89,6 +89,9 @@ export function OrdersManager({ className }: OrdersManagerProps) {
   const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [newStatus, setNewStatus] = useState("");
+  const [customWatchesDetails, setCustomWatchesDetails] = useState<
+    Record<string, any>
+  >({});
 
   // Statuts de commande
   const orderStatuses = [
@@ -121,6 +124,7 @@ export function OrdersManager({ className }: OrdersManagerProps) {
 
       const data = await response.json();
       setOrders(data.orders);
+      console.log(data.orders);
       setTotalPages(data.pagination.totalPages);
     } catch (err) {
       console.error("Erreur:", err);
@@ -129,6 +133,77 @@ export function OrdersManager({ className }: OrdersManagerProps) {
       setLoading(false);
     }
   };
+
+  /*
+  [
+    {
+        "id": "cm8g5emhu000syxy1ts7afja5",
+        "userId": "cm8eol3j50000yxnhqa1t5rm9",
+        "status": "PENDING",
+        "totalAmount": 160,
+        "createdAt": "2025-03-19T16:40:08.035Z",
+        "updatedAt": "2025-03-19T16:40:08.035Z",
+        "user": {
+            "id": "cm8eol3j50000yxnhqa1t5rm9",
+            "name": "Brahim Belabbas",
+            "email": "brahim.belabbas.b@gmail.com"
+        },
+        "items": [
+            {
+                "id": "cm8g5emih000uyxy1hranu917",
+                "orderId": "cm8g5emhu000syxy1ts7afja5",
+                "quantity": 1,
+                "price": 80,
+                "watchId": null,
+                "customWatchId": "cm8g59al2000ayxy1hyw3o8qm",
+                "watch": null
+            },
+            {
+                "id": "cm8g5emj2000wyxy1uxgczlji",
+                "orderId": "cm8g5emhu000syxy1ts7afja5",
+                "quantity": 1,
+                "price": 80,
+                "watchId": null,
+                "customWatchId": "cm8g59xss000gyxy1iscvo383",
+                "watch": null
+            }
+        ]
+    },
+    {
+        "id": "cm8g5aufj000myxy16mxs44gf",
+        "userId": "cm8eol3j50000yxnhqa1t5rm9",
+        "status": "PENDING",
+        "totalAmount": 160,
+        "createdAt": "2025-03-19T16:37:11.696Z",
+        "updatedAt": "2025-03-19T16:37:11.696Z",
+        "user": {
+            "id": "cm8eol3j50000yxnhqa1t5rm9",
+            "name": "Brahim Belabbas",
+            "email": "brahim.belabbas.b@gmail.com"
+        },
+        "items": [
+            {
+                "id": "cm8g5auko000oyxy1trva55jo",
+                "orderId": "cm8g5aufj000myxy16mxs44gf",
+                "quantity": 1,
+                "price": 80,
+                "watchId": null,
+                "customWatchId": "cm8g59al2000ayxy1hyw3o8qm",
+                "watch": null
+            },
+            {
+                "id": "cm8g5aups000qyxy17fsh51oj",
+                "orderId": "cm8g5aufj000myxy16mxs44gf",
+                "quantity": 1,
+                "price": 80,
+                "watchId": null,
+                "customWatchId": "cm8g59xss000gyxy1iscvo383",
+                "watch": null
+            }
+        ]
+    }
+]
+  */
 
   // Mettre à jour le statut d'une commande
   const handleStatusUpdate = async () => {
@@ -169,9 +244,20 @@ export function OrdersManager({ className }: OrdersManagerProps) {
   };
 
   // Ouvrir la boîte de dialogue de détails
-  const handleViewDetails = (order: Order) => {
+  const handleViewDetails = async (order: Order) => {
     setSelectedOrder(order);
     setIsDetailsDialogOpen(true);
+
+    // Récupérer les détails de chaque montre personnalisée
+    const customWatchIds = order.items
+      .filter((item) => item.customWatchId)
+      .map((item) => item.customWatchId as string);
+
+    for (const customWatchId of customWatchIds) {
+      if (!customWatchesDetails[customWatchId]) {
+        const details = await fetchCustomWatchDetails(customWatchId);
+      }
+    }
   };
 
   // Ouvrir la boîte de dialogue de changement de statut
@@ -207,6 +293,26 @@ export function OrdersManager({ className }: OrdersManagerProps) {
     );
   };
 
+  // Ajouter cette fonction pour récupérer les détails d'une montre personnalisée
+  const fetchCustomWatchDetails = async (customWatchId: string) => {
+    try {
+      const response = await fetch(`/api/custom-watches/${customWatchId}`);
+      if (!response.ok)
+        throw new Error("Erreur lors de la récupération des détails");
+      else {
+        const data = await response.json();
+        console.log(data, "data");
+        setCustomWatchesDetails((prev) => ({
+          ...prev,
+          [customWatchId]: data,
+        }));
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+      return null;
+    }
+  };
+
   if (error) {
     return (
       <div className={`p-6 ${className}`}>
@@ -217,327 +323,344 @@ export function OrdersManager({ className }: OrdersManagerProps) {
 
   return (
     <div className={`space-y-6 ${className}`}>
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      {/* En-tête responsive */}
+      <div className="flex flex-col gap-4">
         <h2 className="text-2xl font-bold">Gestion des commandes</h2>
-      </div>
 
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="flex-1">
+        {/* Filtres en colonnes sur mobile */}
+        <div className="space-y-3">
           <Input
             placeholder="Rechercher par nom de client..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full"
           />
+          <Select
+            value={selectedStatus || ""}
+            onValueChange={(value) => setSelectedStatus(value || null)}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Tous les statuts" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tous les statuts</SelectItem>
+              {orderStatuses.map((status) => (
+                <SelectItem key={status.value} value={status.value}>
+                  {status.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-        <Select
-          value={selectedStatus || ""}
-          onValueChange={(value) => setSelectedStatus(value || null)}
-        >
-          <SelectTrigger className="w-full md:w-[200px]">
-            <SelectValue placeholder="Tous les statuts" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tous les statuts</SelectItem>
-            {orderStatuses.map((status) => (
-              <SelectItem key={status.value} value={status.value}>
-                {status.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
 
       {loading ? (
-        <Card className="p-4">
-          <Skeleton className="h-10 w-full mb-4" />
-          <div className="space-y-2">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <Skeleton key={index} className="h-16 w-full" />
-            ))}
-          </div>
-        </Card>
+        <div className="space-y-4">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <Card key={index} className="p-4">
+              <Skeleton className="h-20" />
+            </Card>
+          ))}
+        </div>
       ) : (
-        <>
-          <Card>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Client</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Montant</TableHead>
-                  <TableHead>Articles</TableHead>
-                  <TableHead>Statut</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {orders.length > 0 ? (
-                  orders.map((order) => (
-                    <TableRow key={order.id}>
-                      <TableCell className="font-medium">
-                        {order.clientName}
-                      </TableCell>
-                      <TableCell>{formatDate(order.date)}</TableCell>
-                      <TableCell>{formatPrice(order.amount)}</TableCell>
-                      <TableCell>{order.itemsCount}</TableCell>
-                      <TableCell>
-                        <button
-                          onClick={() => handleStatusClick(order)}
-                          className="cursor-pointer"
-                        >
-                          {getStatusBadge(order.status)}
-                        </button>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleViewDetails(order)}
-                        >
-                          Détails
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-10">
-                      Aucune commande trouvée
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </Card>
-
-          {totalPages > 1 && (
-            <div className="flex justify-center mt-6 gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-              >
-                Précédent
-              </Button>
-              <span className="flex items-center px-4">
-                Page {page} sur {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-              >
-                Suivant
-              </Button>
-            </div>
-          )}
-        </>
-      )}
-
-      {/* Boîte de dialogue de détails */}
-      <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
-        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl">Détails de la commande #{selectedOrder?.id.slice(-6)}</DialogTitle>
-          </DialogHeader>
-          {selectedOrder && (
-            <div className="space-y-6">
-              {/* Informations principales */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Informations client et commande */}
-                <Card className="p-4 shadow-sm">
-                  <h3 className="font-semibold text-lg mb-3 border-b pb-2">Informations générales</h3>
+        <div className="space-y-4">
+          {/* Vue mobile: Cards */}
+          <div className="md:hidden space-y-4">
+            {orders.length > 0 ? (
+              orders.map((order) => (
+                <Card key={order.id} className="p-4">
                   <div className="space-y-3">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Client</p>
-                      <p className="font-medium">{selectedOrder.clientName}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Date de commande</p>
-                      <p className="font-medium">
-                        {formatDate(selectedOrder.date)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Statut</p>
-                      <div className="mt-1">
-                        {getStatusBadge(selectedOrder.status)}
+                    {/* En-tête de la carte */}
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-medium">{order.user.name}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {order.user.email}
+                        </p>
                       </div>
+                      {getStatusBadge(order.status)}
+                    </div>
+
+                    {/* Détails de la commande */}
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>
+                        <p className="text-muted-foreground">Date</p>
+                        <p className="font-medium">
+                          {formatDate(order.createdAt)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Articles</p>
+                        <p className="font-medium">{order.items.length}</p>
+                      </div>
+                      <div className="col-span-2">
+                        <p className="text-muted-foreground">Montant total</p>
+                        <p className="font-medium text-lg">
+                          {formatPrice(order.totalAmount)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-2 pt-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => handleStatusClick(order)}
+                      >
+                        Modifier statut
+                      </Button>
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => handleViewDetails(order)}
+                      >
+                        Voir détails
+                      </Button>
                     </div>
                   </div>
                 </Card>
+              ))
+            ) : (
+              <Card className="p-8">
+                <p className="text-center text-muted-foreground">
+                  Aucune commande trouvée
+                </p>
+              </Card>
+            )}
+          </div>
 
-                {/* Informations de livraison */}
-                <Card className="p-4 shadow-sm">
-                  <h3 className="font-semibold text-lg mb-3 border-b pb-2">Informations de livraison</h3>
-                  {selectedOrder.shippingDetails ? (
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Adresse</p>
-                        <p className="font-medium">{selectedOrder.shippingDetails.address}</p>
-                        <p className="font-medium">
-                          {selectedOrder.shippingDetails.postalCode} {selectedOrder.shippingDetails.city}
-                        </p>
-                        <p className="font-medium">{selectedOrder.shippingDetails.country}</p>
-                      </div>
-                      {selectedOrder.shippingDetails.phone && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">Téléphone</p>
-                          <p className="font-medium">{selectedOrder.shippingDetails.phone}</p>
-                        </div>
-                      )}
-                      {selectedOrder.shippingDetails.email && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">Email</p>
-                          <p className="font-medium">{selectedOrder.shippingDetails.email}</p>
-                        </div>
-                      )}
-                      {selectedOrder.shippingMethod && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">Méthode d'expédition</p>
-                          <p className="font-medium">{selectedOrder.shippingMethod}</p>
-                        </div>
-                      )}
-                    </div>
+          {/* Vue desktop: Table */}
+          <div className="hidden md:block">
+            <Card>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Client</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Montant</TableHead>
+                    <TableHead>Articles</TableHead>
+                    <TableHead>Statut</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {orders.length > 0 ? (
+                    orders.map((order) => (
+                      <TableRow key={order.id}>
+                        <TableCell className="font-medium">
+                          {order.user.name}
+                          <div className="text-sm text-muted-foreground">
+                            {order.user.email}
+                          </div>
+                        </TableCell>
+                        <TableCell>{formatDate(order.createdAt)}</TableCell>
+                        <TableCell>{formatPrice(order.totalAmount)}</TableCell>
+                        <TableCell>{order.items.length} articles</TableCell>
+                        <TableCell>
+                          <button
+                            onClick={() => handleStatusClick(order)}
+                            className="cursor-pointer"
+                          >
+                            {getStatusBadge(order.status)}
+                          </button>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleViewDetails(order)}
+                          >
+                            Détails
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
                   ) : (
-                    <p className="text-sm text-muted-foreground">Aucune information de livraison disponible</p>
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-10">
+                        Aucune commande trouvée
+                      </TableCell>
+                    </TableRow>
                   )}
-                </Card>
-              </div>
+                </TableBody>
+              </Table>
+            </Card>
+          </div>
+        </div>
+      )}
 
-              {/* Articles de la commande */}
-              <Card className="shadow-sm">
-                <div className="p-4 border-b">
-                  <h3 className="font-semibold text-lg">Articles de la commande</h3>
-                </div>
-                <div className="divide-y">
-                  {selectedOrder && selectedOrder.items && selectedOrder.items.map((item) => (
-                    <div key={item.id} className="p-4">
-                      <div className="flex flex-col md:flex-row gap-4">
-                        {/* Image du produit */}
-                        <div className="w-full md:w-1/4 flex-shrink-0">
-                          {item.product.imageUrl ? (
-                            <div className="relative h-40 rounded-md overflow-hidden bg-gray-100">
-                              <img
-                                src={item.product.imageUrl}
-                                alt={item.product.name}
-                                className="object-cover w-full h-full"
-                              />
-                            </div>
-                          ) : (
-                            <div className="h-40 rounded-md bg-gray-100 flex items-center justify-center">
-                              <span className="text-gray-400">Pas d'image</span>
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Détails du produit */}
-                        <div className="flex-1">
-                          <div className="flex justify-between mb-2">
-                            <h4 className="font-semibold text-lg">
-                              {item.product.name}
-                              {item.product.type === "Montre personnalisée" && (
-                                <Badge variant="outline" className="ml-2">
-                                  Personnalisé
-                                </Badge>
-                              )}
-                            </h4>
-                            <div className="text-right">
-                              <p className="text-sm text-muted-foreground">Prix unitaire</p>
-                              <p className="font-medium">{formatPrice(item.price)}</p>
-                            </div>
-                          </div>
-                          
-                          
-                          
-                          {/* Composants de la montre personnalisée */}
-                          {item.product.type === "Montre personnalisée" && item.product.components && item.product.components.length > 0 && (
-                            <div className="mt-3 mb-4">
-                              <p className="text-sm font-medium mb-2">Composants personnalisés:</p>
-                              <div className="grid grid-cols-2 gap-2">
-                                {item.product.components.map((component) => (
-                                  <div key={component.id} className="flex items-center gap-2 text-sm">
-                                    <div className="w-6 h-6 rounded-full bg-gray-100 overflow-hidden flex-shrink-0">
-                                      {component.imageUrl && (
-                                        <img 
-                                          src={component.imageUrl} 
-                                          alt={component.name} 
-                                          className="w-full h-full object-cover"
-                                        />
-                                      )}
-                                    </div>
-                                    <span>
-                                      {component.type}: <strong>{component.name}</strong>
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                          
-                          <div className="flex justify-between items-end mt-auto">
-                            <div>
-                              <p className="text-sm text-muted-foreground">Quantité</p>
-                              <p className="font-medium">{item.quantity}</p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-sm text-muted-foreground">Total</p>
-                              <p className="font-medium text-lg">
-                                {formatPrice(item.price * item.quantity)}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+      {/* Pagination responsive */}
+      {totalPages > 1 && (
+        <div className="flex justify-center gap-2 pt-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+          >
+            Précédent
+          </Button>
+          <div className="flex items-center px-4 text-sm">
+            <span className="hidden md:inline">Page </span>
+            {page} / {totalPages}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+          >
+            Suivant
+          </Button>
+        </div>
+      )}
+
+      {/* Boîte de dialogue de détails optimisée pour mobile */}
+      <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
+        <DialogContent className="sm:max-w-[800px] w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+          <DialogHeader>
+            <DialogTitle className="text-xl flex items-center gap-2">
+              Commande #{selectedOrder?.id.slice(-6)}
+              {selectedOrder && getStatusBadge(selectedOrder.status)}
+            </DialogTitle>
+          </DialogHeader>
+
+          {selectedOrder && (
+            <div className="space-y-4">
+              {/* Informations client */}
+              <Card className="p-4">
+                <div className="space-y-2">
+                  <h3 className="font-medium">Client</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <p className="text-muted-foreground">Nom</p>
+                      <p className="font-medium">{selectedOrder.user.name}</p>
                     </div>
-                  ))}
-                </div>
-                
-                {/* Résumé des coûts */}
-                <div className="p-4 border-t bg-gray-50">
-                  <div className="flex flex-col gap-2 ml-auto w-full md:w-1/3 text-right">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Sous-total:</span>
-                      <span className="font-medium">
-                        {formatPrice(
-                          selectedOrder.items.reduce(
-                            (sum, item) => sum + item.price * item.quantity,
-                            0
-                          )
-                        )}
-                      </span>
+                    <div>
+                      <p className="text-muted-foreground">Email</p>
+                      <p className="font-medium">{selectedOrder.user.email}</p>
                     </div>
-                    
-                    {selectedOrder.shippingCost !== undefined && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Frais de livraison:</span>
-                        <span className="font-medium">{formatPrice(selectedOrder.shippingCost)}</span>
-                      </div>
-                    )}
-                    
-                    <div className="flex justify-between text-lg font-bold pt-2 border-t">
-                      <span>Total:</span>
-                      <span>{formatPrice(selectedOrder.amount)}</span>
+                    <div>
+                      <p className="text-muted-foreground">Date</p>
+                      <p className="font-medium">
+                        {formatDate(selectedOrder.createdAt)}
+                      </p>
                     </div>
                   </div>
                 </div>
               </Card>
-              
-              {/* Notes */}
-              {selectedOrder.notes && (
-                <Card className="p-4 shadow-sm">
-                  <h3 className="font-semibold mb-2">Notes</h3>
-                  <p className="text-sm">{selectedOrder.notes}</p>
-                </Card>
-              )}
+
+              {/* Articles */}
+              <div className="space-y-3">
+                <h3 className="font-medium">Articles commandés</h3>
+                {selectedOrder.items.map((item) => (
+                  <Card key={item.id} className="p-4">
+                    <div className="space-y-4">
+                      <div className="flex justify-between gap-4">
+                        <div>
+                          <p className="font-medium">
+                            {item.customWatchId
+                              ? "Montre personnalisée"
+                              : "Montre"}
+                            {item.customWatchId && (
+                              <Badge variant="outline" className="ml-2">
+                                Personnalisée
+                              </Badge>
+                            )}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Réf: {item.customWatchId || item.watchId}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium">
+                            {formatPrice(item.price)}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            × {item.quantity}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Composants de la montre personnalisée */}
+                      {item.customWatchId &&
+                        customWatchesDetails[item.customWatchId] && (
+                          <div className="border-t pt-3">
+                            <p className="text-sm font-medium mb-2">
+                              Composants:
+                            </p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              {customWatchesDetails[
+                                item.customWatchId
+                              ].components.map((component: any) => (
+                                <div
+                                  key={component.id}
+                                  className="flex items-center gap-2 bg-gray-50 p-2 rounded"
+                                >
+                                  <div className="w-8 h-8 bg-gray-200 rounded-full overflow-hidden">
+                                    {component.component.imageUrl && (
+                                      <img
+                                        src={component.component.imageUrl}
+                                        alt={component.component.name}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    )}
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-muted-foreground">
+                                      {component.component.type}
+                                    </p>
+                                    <p className="text-sm font-medium">
+                                      {component.component.name}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                      {/* Prix total de l'article */}
+                      <div className="border-t pt-3 flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">
+                          Total article
+                        </span>
+                        <span className="font-medium">
+                          {formatPrice(item.price * item.quantity)}
+                        </span>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Total */}
+              <Card className="p-4">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Total</span>
+                  <span className="text-xl font-bold">
+                    {formatPrice(selectedOrder.totalAmount)}
+                  </span>
+                </div>
+              </Card>
             </div>
           )}
-          <DialogFooter className="mt-6">
-            <Button onClick={() => setIsStatusDialogOpen(true)} className="mr-2">
+
+          <DialogFooter className="flex-col sm:flex-row gap-2 mt-6">
+            <Button
+              className="w-full sm:w-auto"
+              onClick={() => setIsStatusDialogOpen(true)}
+            >
               Modifier le statut
             </Button>
-            <Button variant="outline" onClick={() => setIsDetailsDialogOpen(false)}>
+            <Button
+              variant="outline"
+              className="w-full sm:w-auto"
+              onClick={() => setIsDetailsDialogOpen(false)}
+            >
               Fermer
             </Button>
           </DialogFooter>
@@ -552,8 +675,8 @@ export function OrdersManager({ className }: OrdersManagerProps) {
           </DialogHeader>
           <div className="space-y-4">
             <p>
-              Commande de <strong>{selectedOrder?.clientName}</strong> du{" "}
-              {selectedOrder && formatDate(selectedOrder.date)}
+              Commande de <strong>{selectedOrder?.user.name}</strong> du{" "}
+              {selectedOrder && formatDate(selectedOrder.createdAt)}
             </p>
             <Select value={newStatus} onValueChange={setNewStatus}>
               <SelectTrigger>

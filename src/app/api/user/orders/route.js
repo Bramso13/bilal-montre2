@@ -33,9 +33,18 @@ export async function GET(request) {
       skip,
       take: limit,
       include: {
-        orderItems: {
+        items: {
           include: {
             watch: true,
+            customWatch: {
+              include: {
+                components: {
+                  include: {
+                    component: true,
+                  },
+                },
+              },
+            },
           },
         },
       },

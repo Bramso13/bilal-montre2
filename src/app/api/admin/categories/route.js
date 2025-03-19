@@ -8,7 +8,7 @@ import { z } from "zod";
 const categorySchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
   slug: z.string().min(2, "Le slug doit contenir au moins 2 caractères"),
-  description: z.string().min(10, "La description doit contenir au moins 10 caractères"),
+  description: z.string(),
   imageUrl: z.string().url("L'URL de l'image est invalide").optional(),
 });
 

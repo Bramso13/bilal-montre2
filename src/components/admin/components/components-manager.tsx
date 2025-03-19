@@ -134,6 +134,8 @@ export function ComponentsManager({ className }: ComponentsManagerProps) {
       return;
     }
 
+    
+
     try {
       const response = await fetch("/api/admin/components", {
         method: "POST",

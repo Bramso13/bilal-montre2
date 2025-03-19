@@ -64,7 +64,7 @@ export async function GET(req) {
     // Calculer le revenu total
     const revenue = await prisma.order.aggregate({
       _sum: {
-        totalPrice: true,
+        totalAmount: true,
       },
     });
 

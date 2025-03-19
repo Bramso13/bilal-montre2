@@ -1,14 +1,28 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { prisma } from "@/lib/prisma";
 
-export default function HomePage() {
+async function getWatchesWithCategories() {
+  const categories = await prisma.category.findMany({
+    include: {
+      watches: {
+        take: 3, // Limite à 3 montres par catégorie
+      },
+    },
+  });
+  return categories;
+}
+
+export default async function HomePage() {
+  const categories = await getWatchesWithCategories();
+
   return (
     <div className="bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen">
       {/* Hero section */}
       <section className="relative h-[600px] w-full">
         <Image
-          src="/images/hero-banner.jpg"
+          src="https://www.seikowatches.com/fr-fr/-/media/Images/GlobalEn/Seiko/Home/TOP/megamenu/megamenu_prospex.jpg?mh=440&mw=776&hash=010F0A382EE00FE699D481EEF33DCB90"
           alt="Montre Seiko élégante"
           fill
           className="object-cover"
@@ -26,10 +40,19 @@ export default function HomePage() {
               qualité.
             </p>
             <div className="mt-8 flex gap-4">
-              <Button asChild size="lg" className="bg-watchGold hover:bg-watchGold/90 text-white border-none">
+              <Button
+                asChild
+                size="lg"
+                className="bg-watchGold hover:bg-watchGold/90 text-white border-none"
+              >
                 <Link href="/montres">Découvrir la Collection</Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="border-white text-black hover:bg-white/10">
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="border-white text-black hover:bg-white/10"
+              >
                 <Link href="/personnaliser">Personnaliser</Link>
               </Button>
             </div>
@@ -94,157 +117,41 @@ export default function HomePage() {
         </div>
       </section> */}
 
-      {/* Space Timer Collection */}
-      <section className="py-16 bg-watchBlack text-white">
-        <div className="container">
-          <div className="flex justify-between items-center mb-10">
-            <h2 className="chronoswiss-title">Space Timer</h2>
-            <div className="flex gap-1">
-              {[...Array(10)].map((_, i) => (
-                <div 
-                  key={i} 
-                  className={`w-2 h-2 rounded-full ${i < 3 ? 'bg-watchGold' : 'bg-gray-600'}`}
-                />
-              ))}
+      {/* {categories.map((category) => (
+        <section className="py-16 bg-watchBlack text-white">
+          <div className="container">
+            <div className="flex justify-between items-center mb-10">
+              <h2 className="chronoswiss-title">{category.name}</h2>
             </div>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* Montre 1 */}
-            <div className="chronoswiss-product-card">
-              <div className="p-4">
-                <div className="chronoswiss-limited-tag">Limité à 50 pièces</div>
-              </div>
-              <div className="relative aspect-square">
-                <Image 
-                  src="/images/classic-watches.jpg" 
-                  alt="Space Timer Black Hole" 
-                  fill 
-                  className="object-cover"
-                />
-              </div>
-              <div className="p-6">
-                <div className="text-sm text-gray-400">CH-9345M-2-CRBK</div>
-                <h3 className="text-lg font-medium mt-1">SPACE TIMER BLACK HOLE</h3>
-              </div>
-            </div>
-            
-            {/* Montre 2 */}
-            <div className="chronoswiss-product-card">
-              <div className="p-4">
-                <div className="chronoswiss-limited-tag">Limité à 50 pièces</div>
-              </div>
-              <div className="relative aspect-square">
-                <Image 
-                  src="/images/luxury-watches.jpg" 
-                  alt="Space Timer Jupiter Gold" 
-                  fill 
-                  className="object-cover"
-                />
-              </div>
-              <div className="p-6">
-                <div className="text-sm text-gray-400">CH-9341-2-CUBK</div>
-                <h3 className="text-lg font-medium mt-1">SPACE TIMER JUPITER GOLD</h3>
-              </div>
-            </div>
-            
-            {/* Montre 3 */}
-            <div className="chronoswiss-product-card">
-              <div className="p-4">
-                <div className="chronoswiss-limited-tag">Limité à 50 pièces</div>
-              </div>
-              <div className="relative aspect-square">
-                <Image 
-                  src="/images/sport-watches.jpg" 
-                  alt="Space Timer Jupiter" 
-                  fill 
-                  className="object-cover"
-                />
-              </div>
-              <div className="p-6">
-                <div className="text-sm text-gray-400">CH-9343-2-CUBK</div>
-                <h3 className="text-lg font-medium mt-1">SPACE TIMER JUPITER</h3>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Tourbillon Collection */}
-      <section className="py-16 bg-watchBlack text-white">
-        <div className="container">
-          <div className="flex justify-between items-center mb-10">
-            <h2 className="chronoswiss-title">Tourbillon</h2>
-            <div className="flex gap-1">
-              {[...Array(10)].map((_, i) => (
-                <div 
-                  key={i} 
-                  className={`w-2 h-2 rounded-full ${i < 3 ? 'bg-watchGold' : 'bg-gray-600'}`}
-                />
+            <div className="grid md:grid-cols-3 gap-6">
+              {category.watches.map((watch) => (
+                <div className="chronoswiss-product-card">
+                  <div className="p-4">
+                    <div className="chronoswiss-limited-tag">
+                      {watch.stock === 0
+                        ? "Rupture de stock"
+                        : `Plus que ${watch.stock} pièces`}
+                    </div>
+                  </div>
+                  <div className="relative aspect-square">
+                    <Image
+                      src={watch.imageUrl}
+                      alt={watch.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="p-6">
+                    <div className="text-sm text-gray-400">{watch.brand}</div>
+                    <h3 className="text-lg font-medium mt-1">{watch.name}</h3>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
-          
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* Montre 1 */}
-            <div className="chronoswiss-product-card">
-              <div className="p-4">
-                <div className="chronoswiss-limited-tag">Limité à 15 pièces</div>
-              </div>
-              <div className="relative aspect-square">
-                <Image 
-                  src="/images/luxury-watches.jpg" 
-                  alt="Tourbillon Red" 
-                  fill 
-                  className="object-cover"
-                />
-              </div>
-              <div className="p-6">
-                <div className="text-sm text-gray-400">CH-3721R-SI</div>
-                <h3 className="text-lg font-medium mt-1">TOURBILLON RED</h3>
-              </div>
-            </div>
-            
-            {/* Montre 2 */}
-            <div className="chronoswiss-product-card">
-              <div className="p-4">
-                <div className="chronoswiss-limited-tag">Limité à 15 pièces</div>
-              </div>
-              <div className="relative aspect-square">
-                <Image 
-                  src="/images/classic-watches.jpg" 
-                  alt="Tourbillon Blue" 
-                  fill 
-                  className="object-cover"
-                />
-              </div>
-              <div className="p-6">
-                <div className="text-sm text-gray-400">CH-3721B-SI</div>
-                <h3 className="text-lg font-medium mt-1">TOURBILLON BLUE</h3>
-              </div>
-            </div>
-            
-            {/* Montre 3 */}
-            <div className="chronoswiss-product-card">
-              <div className="p-4">
-                <div className="chronoswiss-limited-tag">Limité à 15 pièces</div>
-              </div>
-              <div className="relative aspect-square">
-                <Image 
-                  src="/images/sport-watches.jpg" 
-                  alt="Tourbillon Black" 
-                  fill 
-                  className="object-cover"
-                />
-              </div>
-              <div className="p-6">
-                <div className="text-sm text-gray-400">CH-3721K-SI</div>
-                <h3 className="text-lg font-medium mt-1">TOURBILLON BLACK</h3>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+        </section>
+      ))} */}
 
       {/* Section personnalisation */}
       <section className="py-16 bg-gray-100">
@@ -259,13 +166,17 @@ export default function HomePage() {
                 notre large sélection de composants et laissez libre cours à
                 votre créativité.
               </p>
-              <Button asChild className="mt-6 bg-watchBlack hover:bg-watchBlack/90 text-white" size="lg">
+              <Button
+                asChild
+                className="mt-6 bg-watchBlack hover:bg-watchBlack/90 text-white"
+                size="lg"
+              >
                 <Link href="/personnaliser">Commencer la Personnalisation</Link>
               </Button>
             </div>
             <div className="relative h-[400px]">
               <Image
-                src="/images/custom-watch.jpg"
+                src="https://iflwatches.com/cdn/shop/collections/iflw_custom_seiko_sports_5_GMT_gravity_concept_banner.jpg?v=1728416760"
                 alt="Personnalisation de montre"
                 fill
                 className="rounded-lg object-cover"
@@ -274,6 +185,63 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* New section for categories */}
+      <main>
+        {categories.map((category) => (
+          <section key={category.id} className="py-12">
+            <div className="container">
+              <div className="flex justify-between items-center mb-10">
+                <h2 className="chronoswiss-title">{category.name}</h2>
+                <Link
+                  href={`/montres?category=${category.slug}`}
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Voir toute la collection →
+                </Link>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-6">
+                {category.watches.map((watch) => (
+                  <Link
+                    href={`/montres/${watch.id}`}
+                    key={watch.id}
+                    className="chronoswiss-product-card group"
+                  >
+                    <div className="p-4">
+                      {watch.stock <= 50 && (
+                        <div className="chronoswiss-limited-tag">
+                          {watch.stock === 0
+                            ? "Rupture de stock"
+                            : `Plus que ${watch.stock} pièces`}
+                        </div>
+                      )}
+                    </div>
+                    <div className="relative aspect-square overflow-hidden">
+                      <Image
+                        src={watch.imageUrl}
+                        alt={watch.name}
+                        fill
+                        className="object-cover transition-transform group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="p-6">
+                      <div className="text-sm text-gray-400">{watch.brand}</div>
+                      <h3 className="text-lg font-medium mt-1">{watch.name}</h3>
+                      <p className="mt-2 font-medium">
+                        {new Intl.NumberFormat("fr-FR", {
+                          style: "currency",
+                          currency: "EUR",
+                        }).format(watch.price)}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        ))}
+      </main>
     </div>
   );
 }

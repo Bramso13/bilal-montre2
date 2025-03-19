@@ -30,7 +30,7 @@ interface Watch {
   price: number;
   stock: number;
   imageUrl: string;
-  reference: string;
+  brand: string;
   categoryId?: string;
   category?: {
     id: string;
@@ -66,7 +66,7 @@ export function WatchesManager({ className }: WatchesManagerProps) {
     price: "",
     stock: "",
     imageUrl: "",
-    reference: "",
+    brand: "",
     categoryId: "",
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -116,7 +116,7 @@ export function WatchesManager({ className }: WatchesManagerProps) {
     if (!formData.stock) errors.stock = "Le stock est obligatoire";
     if (!formData.imageUrl)
       errors.imageUrl = "L'URL de l'image est obligatoire";
-    if (!formData.reference) errors.reference = "La référence est obligatoire";
+    if (!formData.brand) errors.brand = "La marque est obligatoire";
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -134,6 +134,7 @@ export function WatchesManager({ className }: WatchesManagerProps) {
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error("Erreur lors de la création de la montre:", errorData);
         throw new Error(
           errorData.error || "Erreur lors de la création de la montre"
         );
@@ -146,7 +147,7 @@ export function WatchesManager({ className }: WatchesManagerProps) {
         price: "",
         stock: "",
         imageUrl: "",
-        reference: "",
+        brand: "",
         categoryId: "",
       });
       setFormErrors({});
@@ -171,7 +172,7 @@ export function WatchesManager({ className }: WatchesManagerProps) {
     if (!formData.stock) errors.stock = "Le stock est obligatoire";
     if (!formData.imageUrl)
       errors.imageUrl = "L'URL de l'image est obligatoire";
-    if (!formData.reference) errors.reference = "La référence est obligatoire";
+    if (!formData.brand) errors.brand = "La marque est obligatoire";
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -201,7 +202,7 @@ export function WatchesManager({ className }: WatchesManagerProps) {
         price: "",
         stock: "",
         imageUrl: "",
-        reference: "",
+        brand: "",
         categoryId: "",
       });
       setFormErrors({});
@@ -248,7 +249,7 @@ export function WatchesManager({ className }: WatchesManagerProps) {
       price: watch.price.toString(),
       stock: watch.stock.toString(),
       imageUrl: watch.imageUrl,
-      reference: watch.reference,
+      brand: watch.brand,
       categoryId: watch.categoryId || "",
     });
     setIsEditDialogOpen(true);
@@ -278,7 +279,7 @@ export function WatchesManager({ className }: WatchesManagerProps) {
           <div>
             <h3 className="font-semibold text-lg">{watch.name}</h3>
             <p className="text-sm text-muted-foreground">
-              Réf: {watch.reference}
+              Réf: {watch.brand}
             </p>
             {watch.category && (
               <p className="text-sm text-muted-foreground">
@@ -442,12 +443,12 @@ export function WatchesManager({ className }: WatchesManagerProps) {
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="reference">Référence</Label>
+                <Label htmlFor="brand">Marque</Label>
                 <Input
-                  id="reference"
-                  value={formData.reference}
+                  id="brand"
+                  value={formData.brand}
                   onChange={(e) =>
-                    setFormData({ ...formData, reference: e.target.value })
+                    setFormData({ ...formData, brand: e.target.value })
                   }
                 />
                 {formErrors.reference && (
@@ -572,12 +573,12 @@ export function WatchesManager({ className }: WatchesManagerProps) {
                 <Label htmlFor="edit-reference">Référence</Label>
                 <Input
                   id="edit-reference"
-                  value={formData.reference}
+                  value={formData.brand}
                   onChange={(e) =>
-                    setFormData({ ...formData, reference: e.target.value })
+                    setFormData({ ...formData, brand: e.target.value })
                   }
                 />
-                {formErrors.reference && (
+                {formErrors.brand && (
                   <p className="text-sm text-red-500">{formErrors.reference}</p>
                 )}
               </div>

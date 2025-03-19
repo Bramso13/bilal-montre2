@@ -7,12 +7,12 @@ import { z } from "zod";
 // Schéma de validation pour la création d'une montre
 const watchSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
-  description: z.string().min(10, "La description doit contenir au moins 10 caractères"),
+  description: z.string(),
   price: z.number().positive("Le prix doit être positif"),
   stock: z.number().int().nonnegative("Le stock ne peut pas être négatif"),
   imageUrl: z.string().url("L'URL de l'image est invalide"),
   brand: z.string(),
-  reference: z.string().min(3, "La référence doit contenir au moins 3 caractères"),
+
   categoryId: z.string().optional(),
 });
 
@@ -84,6 +84,9 @@ export async function GET(request) {
         current: page,
         limit,
       },
+      filters: {
+        categories: await prisma.category.findMany(),
+      },
     });
   } catch (error) {
     console.error("Erreur lors de la récupération des montres:", error);
@@ -111,6 +114,8 @@ export async function POST(request) {
     }
 
     const body = await request.json();
+    body.stock = parseInt(body.stock);
+    body.price = parseFloat(body.price);
 
     // Valider les données d'entrée
     const result = watchSchema.safeParse(body);
@@ -120,18 +125,6 @@ export async function POST(request) {
           error: "Données de montre invalides",
           details: result.error.format(),
         },
-        { status: 400 }
-      );
-    }
-
-    // Vérifier si la référence est unique
-    const existingWatch = await prisma.watch.findUnique({
-      where: { reference: result.data.reference },
-    });
-
-    if (existingWatch) {
-      return NextResponse.json(
-        { error: "Cette référence est déjà utilisée par une autre montre" },
         { status: 400 }
       );
     }

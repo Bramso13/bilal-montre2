@@ -7,9 +7,9 @@ import { z } from "zod";
 // Schéma de validation pour la création d'une montre personnalisée
 const customWatchSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
-  description: z.string().min(10, "La description doit contenir au moins 10 caractères"),
+
   components: z.array(z.string()),
-  imageUrl: z.string().url("L'URL de l'image est invalide").optional(),
+
 });
 
 // POST - Créer une nouvelle montre personnalisée
@@ -62,16 +62,22 @@ export async function POST(request) {
     const customWatch = await prisma.customWatch.create({
       data: {
         name: result.data.name,
-        description: result.data.description,
-        imageUrl: result.data.imageUrl,
         totalPrice,
         userId: session.user.id,
         components: {
-          connect: result.data.components.map((id) => ({ id })),
+          create: result.data.components.map((componentId) => ({
+            component: {
+              connect: { id: componentId }
+            }
+          })),
         },
       },
       include: {
-        components: true,
+        components: {
+          include: {
+            component: true
+          }
+        },
         user: {
           select: {
             id: true,

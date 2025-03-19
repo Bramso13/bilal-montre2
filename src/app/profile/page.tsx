@@ -21,7 +21,7 @@ import { fr } from "date-fns/locale";
 
 interface Order {
   id: string;
-  date: string;
+  createdAt: string;
   status: string;
   totalAmount: number;
   items: {
@@ -357,10 +357,10 @@ export default function ProfilePage() {
                     </CardContent>
                   </Card>
                   <div className="mt-6">
-                    <Button 
-                      variant="destructive" 
-                      className="w-full" 
-                      onClick={() => signOut({ callbackUrl: '/' })}
+                    <Button
+                      variant="destructive"
+                      className="w-full"
+                      onClick={() => signOut({ callbackUrl: "/" })}
                     >
                       Déconnexion
                     </Button>
@@ -391,7 +391,9 @@ export default function ProfilePage() {
                                     Commande #{order.id.substring(0, 8)}
                                   </p>
                                   <p className="text-sm text-muted-foreground">
-                                    {formatDate(order.date)}
+                                    {order.createdAt
+                                      ? formatDate(order.createdAt)
+                                      : "Date non disponible"}
                                   </p>
                                 </div>
                                 <div className="flex items-center gap-4">

@@ -220,7 +220,7 @@ export async function POST(request) {
     const orderWithItems = await prisma.order.findUnique({
       where: { id: order.id },
       include: {
-        orderItems: {
+        items: {
           include: {
             watch: true,
             customWatch: {

@@ -7,11 +7,11 @@ import { z } from "zod";
 // Schéma de validation pour les composants
 const componentSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
-  description: z.string().min(10, "La description doit contenir au moins 10 caractères"),
+  description: z.string(),
   price: z.number().positive("Le prix doit être positif"),
   stock: z.number().int().min(0, "Le stock ne peut pas être négatif"),
   imageUrl: z.string().url("L'URL de l'image est invalide"),
-  type: z.enum(["BOITIER", "CADRAN", "BRACELET", "MOUVEMENT"]),
+  type: z.string(),
 });
 
 // GET - Récupérer tous les composants
@@ -95,6 +95,9 @@ export async function POST(request) {
     }
 
     const body = await request.json();
+
+    body.stock = parseInt(body.stock);
+    body.price = parseFloat(body.price);
 
     // Valider les données d'entrée
     const result = componentSchema.safeParse(body);

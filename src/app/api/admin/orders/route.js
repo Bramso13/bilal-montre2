@@ -73,7 +73,7 @@ export async function GET(request) {
             email: true,
           },
         },
-        orderItems: {
+        items: {
           include: {
             watch: true,
           },
