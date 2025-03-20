@@ -1,0 +1,12 @@
+@supports (background: -webkit-named-image(i)) {
+
+    .strap-image {
+        transform: translate(37px, 37px);
+    }
+} /** Safari */
+
+@supports not (background: -webkit-named-image(i)) {
+    .strap-image {
+        transform: translate(10px, 10px);
+    }
+} /** Other browsers */

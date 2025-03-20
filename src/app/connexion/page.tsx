@@ -28,8 +28,6 @@ export default function ConnexionPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -42,7 +40,7 @@ export default function ConnexionPage() {
 
     try {
       const result = await signIn("credentials", {
-        redirect: false,
+        redirect: true,
         email: formData.email,
         password: formData.password,
       });

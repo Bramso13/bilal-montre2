@@ -1,5 +1,5 @@
 "use client";
-
+import "./style.css";
 import { useState, useEffect, useRef } from "react";
 
 import { useRouter } from "next/navigation";
@@ -517,7 +517,7 @@ export default function CustomizePage() {
                                           selectedComponents["STRAP"].imageUrl
                                         }
                                         alt={selectedComponents["STRAP"].name}
-                                        className="object-center transform -translate-y-[-10px] -translate-x-[-10px]"
+                                        className="object-center transform strap-image"
                                         width={200}
                                         height={200}
                                       />
@@ -586,9 +586,6 @@ export default function CustomizePage() {
                                     {component.name}
                                   </p>
                                 </div>
-                                <span className="text-sm font-medium">
-                                  {component.price.toLocaleString("fr-FR")} €
-                                </span>
                               </li>
                             )
                           )}
@@ -747,12 +744,6 @@ export default function CustomizePage() {
                                         </p>
                                       </CardHeader>
                                       <CardFooter className="p-4 pt-0 flex justify-between items-center">
-                                        <span className="font-bold">
-                                          {component.price.toLocaleString(
-                                            "fr-FR"
-                                          )}{" "}
-                                          €
-                                        </span>
                                         <Button
                                           variant={
                                             selectedComponents[type]?.id ===
@@ -948,12 +939,6 @@ export default function CustomizePage() {
                                 ].name
                               }
                             </h3>
-                            <span className="font-bold">
-                              {componentsByType[activeType][
-                                currentComponentIndex
-                              ].price.toLocaleString("fr-FR")}{" "}
-                              €
-                            </span>
                           </div>
                           <p className="text-sm text-muted-foreground">
                             {
